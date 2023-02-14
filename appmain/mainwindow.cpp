@@ -1,7 +1,7 @@
+#include <QDebug>
+#include <QFileDialog>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QDebug>
-
 #include "qrencode.h"
 #include "qrspec.h"
 #include "mqrspec.h"
@@ -47,5 +47,17 @@ void MainWindow::on_pushButton_generate_clicked(void)
 
     if(!text.isEmpty()) {
         ui->label_qrcode->setPixmap(encodeQRCode(text));
+    }
+}
+
+void MainWindow::on_pushButton_export_clicked(void)
+{
+    if(ui->lineEdit_text->text().isEmpty()) {
+        return;
+    }
+    QString fileName = QFileDialog::getSaveFileName(this, QObject::tr("save file"), QApplication::applicationDirPath(), QObject::tr("PNG File(*.PNG)"));
+    if(!fileName.isEmpty()) {
+        QPixmap pixmap = encodeQRCode(ui->lineEdit_text->text());
+        pixmap.toImage().save(fileName, "PNG");
     }
 }
