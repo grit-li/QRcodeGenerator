@@ -16,8 +16,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 TARGET = QRcodeGenerator
+
 ROOT_PATH = $$PWD/..
 include($$ROOT_PATH/config.pri)
+
+INCLUDEPATH += $$ROOT_PATH/qrcode
+LIBS += -L$$LIBS_PATH -lqrcode
 
 SOURCES += \
     main.cpp \
