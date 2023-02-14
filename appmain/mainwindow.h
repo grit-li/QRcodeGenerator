@@ -15,6 +15,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow(void);
 
+protected:
+    QPixmap encodeQRCode(void);
+
 private slots:
     void on_pushButton_generate_clicked(void);
 

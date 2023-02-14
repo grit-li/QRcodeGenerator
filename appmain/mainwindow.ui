@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>670</width>
-    <height>191</height>
+    <width>709</width>
+    <height>414</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,19 +24,10 @@
     <property name="rightMargin">
      <number>0</number>
     </property>
-    <item row="6" column="0">
-     <widget class="QLabel" name="label_qrcode">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+    <item row="5" column="0">
+     <widget class="QPushButton" name="pushButton_export">
       <property name="text">
-       <string/>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <string>Export</string>
       </property>
      </widget>
     </item>
@@ -63,18 +54,115 @@
       </widget>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0">
      <widget class="QPushButton" name="pushButton_generate">
       <property name="text">
        <string>Generate</string>
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
-     <widget class="QPushButton" name="pushButton_export">
-      <property name="text">
-       <string>Export</string>
+    <item row="7" column="0">
+     <widget class="QLabel" name="label_qrcode">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>QRCode Setting</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="QComboBox" name="comboBox_qrcode_size">
+         <item>
+          <property name="text">
+           <string>300x300px</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>400x400px</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>500x500px</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>1000x1000px</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="spinBox_qrcode_version">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>40</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Version</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Level of error correction</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="comboBox_qrcode_error_level">
+         <item>
+          <property name="text">
+           <string>7%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>15%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>25%</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>30%</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -84,7 +172,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>670</width>
+     <width>709</width>
      <height>26</height>
     </rect>
    </property>
