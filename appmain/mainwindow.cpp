@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QFileDialog>
+#include <QMap>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "qrencode.h"
@@ -56,12 +57,65 @@ MainWindow::~MainWindow(void)
     delete ui;
 }
 
+static inline QString vCardFormat(const QMap<QString, QString>& map)
+{
+    QString text = QString();
+    text += "BEGIN:VCARD\n";
+    text += "VERSION:3.0\n";
+    text += QString("N:%1\n").arg(map["Name"]);
+    text += QString("TEL;CELL;VOICE:%1\n").arg(map["Phone"]);
+    if(!map["Email"].isEmpty()) {
+        text += QString("EMAIL;PREF;INTERNET:%1\n").arg(map["Email"]);
+    }
+    if(!map["ORG"].isEmpty()) {
+        text += QString("ORG:%1\n").arg(map["ORG"]);
+    }
+    if(!map["ADR"].isEmpty()) {
+        text += QString("ADR:%1\n").arg(map["ADR"]);
+    }
+    if(!map["BDAY"].isEmpty()) {
+        text += QString("BDAY:%1\n").arg(map["BDAY"]);
+    }
+    if(!map["NOTE"].isEmpty()) {
+        text += QString("NOTE:%1\n").arg(map["NOTE"]);
+    }
+    if(!map["TITLE"].isEmpty()) {
+        text += QString("TITLE:%1\n").arg(map["TITLE"]);
+    }
+    if(!map["ROLE"].isEmpty()) {
+        text += QString("ROLE:%1\n").arg(map["ROLE"]);
+    }
+    text += "END:VCARD";
+    return text;
+}
+
 QPixmap MainWindow::encodeQRCode(void)
 {
-    QString text = ui->lineEdit_text->text();
     int version = ui->spinBox_qrcode_version->value();
     QRecLevel level = static_cast<QRecLevel>(ui->comboBox_qrcode_error_level->currentIndex());
     QSize size = ui->comboBox_qrcode_size->currentData().toSize();
+    QString text = QString();
+    switch(ui->tabWidget_input->currentIndex()) {
+        case 0:
+            text = ui->lineEdit_text->text();
+            break;
+        case 1:
+            if(!ui->lineEdit_vcard_name->text().isEmpty() && !ui->lineEdit_vcard_phone->text().isEmpty()) {
+                QMap<QString, QString> map;
+                map.insert("Name", ui->lineEdit_vcard_name->text());
+                map.insert("Phone", ui->lineEdit_vcard_phone->text());
+                map.insert("Email", ui->lineEdit_vcard_email->text());
+                map.insert("ORG", ui->lineEdit_vcard_organization->text());
+                map.insert("ADR", ui->lineEdit_vcard_home_address->text());
+                map.insert("BDAY", ui->lineEdit_vcard_birthday->text());
+                map.insert("NOTE", ui->lineEdit_vcard_note->text());
+                map.insert("TITLE", ui->lineEdit_vcard_job_title->text());
+                map.insert("ROLE", ui->lineEdit_vcard_occupation->text());
+                text = vCardFormat(map);
+            }
+            break;
+    }
+
     if(text.isEmpty()) {
         return QPixmap();
     }
@@ -75,9 +129,19 @@ void MainWindow::on_pushButton_generate_clicked(void)
 
 void MainWindow::on_pushButton_export_clicked(void)
 {
-    if(ui->lineEdit_text->text().isEmpty()) {
-        return;
+    switch(ui->tabWidget_input->currentIndex()) {
+        case 0:
+            if(ui->lineEdit_text->text().isEmpty()) {
+                return;
+            }
+            break;
+        case 1:
+            if(ui->lineEdit_vcard_name->text().isEmpty() || ui->lineEdit_vcard_phone->text().isEmpty()) {
+                return;
+            }
+            break;
     }
+
     QString fileName = QFileDialog::getSaveFileName(this, QObject::tr("save file"), QApplication::applicationDirPath(), QObject::tr("PNG File(*.PNG)"));
     if(!fileName.isEmpty()) {
         QPixmap pixmap = encodeQRCode();
