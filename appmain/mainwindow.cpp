@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QMap>
+#include <QBuffer>
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "qrencode.h"
@@ -24,22 +25,29 @@ static void scaleQRCodeImage(QImage* image, int x, int y, unsigned int scale, ui
 static inline QPixmap encodeQRCodeToPixmap(const QString& text, int version, QRecLevel level, const QSize& size)
 {
     QRcode* qrcode;
+    QPixmap pixmap = QPixmap();
+    if(text.isEmpty()) {
+        return QPixmap();
+    }
     qrcode = QRcode_encodeString(text.toStdString().c_str(), version, level, QR_MODE_8, 0);
-    unsigned int scale = size.width() / qrcode->width;
-    unsigned int imageWidth = scale * qrcode->width;
-    QImage image(imageWidth, imageWidth, QImage::Format::Format_RGB888);
-    for(int y = 0; y < qrcode->width; y++) {
-        for(int x = 0; x < qrcode->width; x++) {
-            if(qrcode->data[y * qrcode->width + x] & 0x01) {
-                scaleQRCodeImage(&image, x, y, scale, qRgb(0, 0, 0));
-            } else {
-                scaleQRCodeImage(&image, x, y, scale, qRgb(255, 255, 255));
+    if(qrcode) {
+        unsigned int scale = size.width() / qrcode->width;
+        unsigned int imageWidth = scale * qrcode->width;
+        QImage image(imageWidth, imageWidth, QImage::Format::Format_RGB888);
+        for(int y = 0; y < qrcode->width; y++) {
+            for(int x = 0; x < qrcode->width; x++) {
+                if(qrcode->data[y * qrcode->width + x] & 0x01) {
+                    scaleQRCodeImage(&image, x, y, scale, qRgb(0, 0, 0));
+                } else {
+                    scaleQRCodeImage(&image, x, y, scale, qRgb(255, 255, 255));
+                }
             }
         }
-    }
 
-    QRcode_free(qrcode);
-    return QPixmap::fromImage(image);
+        QRcode_free(qrcode);
+        pixmap = QPixmap::fromImage(image);
+    }
+    return pixmap;
 }
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -85,7 +93,19 @@ static inline QString vCardFormat(const QMap<QString, QString>& map)
     if(!map["ROLE"].isEmpty()) {
         text += QString("ROLE:%1\n").arg(map["ROLE"]);
     }
+    if(!map["PHOTO"].isEmpty()) {
+        QImage image(map["PHOTO"]);
+        QByteArray ba;
+        QBuffer buf(&ba);
+        image.save(&buf, "png");
+        text += QString("PHOTO;ENCODING=b;TYPE=PNG:%1\n").arg(ba.toBase64(QByteArray::Base64Option::Base64UrlEncoding | QByteArray::Base64Option::OmitTrailingEquals).toStdString().c_str());
+        buf.close();
+    }
     text += "END:VCARD";
+
+#ifndef QT_NO_DEBUG
+    qDebug() << text;
+#endif
     return text;
 }
 
@@ -111,13 +131,10 @@ QPixmap MainWindow::encodeQRCode(void)
                 map.insert("NOTE", ui->lineEdit_vcard_note->text());
                 map.insert("TITLE", ui->lineEdit_vcard_job_title->text());
                 map.insert("ROLE", ui->lineEdit_vcard_occupation->text());
+                map.insert("PHOTO", ui->pushButton_vcard_photo->property("photo name").toString());
                 text = vCardFormat(map);
             }
             break;
-    }
-
-    if(text.isEmpty()) {
-        return QPixmap();
     }
     return encodeQRCodeToPixmap(text, version, level, size);
 }
@@ -146,5 +163,14 @@ void MainWindow::on_pushButton_export_clicked(void)
     if(!fileName.isEmpty()) {
         QPixmap pixmap = encodeQRCode();
         pixmap.toImage().save(fileName, "PNG");
+    }
+}
+
+void MainWindow::on_pushButton_vcard_photo_clicked(void)
+{
+    QString fileName = QFileDialog::getOpenFileName(this, QObject::tr("open file"), QApplication::applicationDirPath(), QObject::tr("PNG File(*.PNG)"));
+    if(!fileName.isEmpty()) {
+        ui->pushButton_vcard_photo->setStyleSheet(QString("border-image: url(%1)").arg(fileName));
+        ui->pushButton_vcard_photo->setProperty("photo name", fileName);
     }
 }

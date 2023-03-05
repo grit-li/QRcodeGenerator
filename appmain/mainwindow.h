@@ -23,6 +23,8 @@ private slots:
 
     void on_pushButton_export_clicked(void);
 
+    void on_pushButton_vcard_photo_clicked(void);
+
 private:
     Ui::MainWindow *ui;
 };
